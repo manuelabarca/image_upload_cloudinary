@@ -1,24 +1,38 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
-import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.scss";
 
 export const Home = () => {
 	const { store, actions } = useContext(Context);
 
+	const [file, setFile] = useState();
+
+	const uploadImage = evt => {
+		evt.preventDefault();
+		console.log(file);
+
+		const formData = new FormData();
+		formData.append("File", file);
+
+		fetch("https://3001-coffee-pike-lv22s8vq.ws-us18.gitpod.io/api/profile/image", {
+			method: "POST",
+			body: formData
+		})
+			.then(resp => {
+				if (resp.ok) {
+					return resp.json();
+				}
+			})
+			.then(data => console.log("dataa", data))
+			.catch(error => console.error("[ERROR TO UPLOAD FILE]", error));
+	};
+
 	return (
 		<div className="text-center mt-5">
-			<h1>Hello Rigo!</h1>
-			<p>
-				<img src={rigoImageUrl} />
-			</p>
-			<div className="alert alert-info">{store.message || "Loading message from the backend..."}</div>
-			<p>
-				This boilerplate comes with lots of documentation:{" "}
-				<a href="https://github.com/4GeeksAcademy/react-flask-hello/tree/95e0540bd1422249c3004f149825285118594325/docs">
-					Read documentation
-				</a>
-			</p>
+			<form onSubmit={uploadImage}>
+				<input type="file" name="file" onChange={e => setFile(e.target.files[0])} />
+				<button>Subir imagen.</button>
+			</form>
 		</div>
 	);
 };
